@@ -17,6 +17,10 @@ const updateValidations = [
     .if((value, { req }) => req.body.email)
     .trim()
     .isEmail(),
+  body("birth_date", "birth_date is not valid")
+    .if((value, { req }) => req.body.birth_date)
+    .trim()
+    .isDate(),
 ];
 
 export { createValidations, updateValidations };
