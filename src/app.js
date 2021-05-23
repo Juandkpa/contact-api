@@ -4,6 +4,7 @@ import express from "express";
 import contactRouter from './resources/contact';
 import connectDB from './db/mongoose';
 import { developmentErrors, productionErrors } from './middleware/error';
+import fileCleaner from './middleware/fileCleaner';
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use(urlencoded({ extended: true }));
 app.use('/api/contact', contactRouter);
 
 app.use(express.static('public'));
+
+app.use(fileCleaner);
 
 if (app.get("env") === "development") {
   app.use(developmentErrors);
