@@ -1,0 +1,5 @@
+trailingComma: "es5"
+tabWidth: 2
+singleQuote: true
+bracket-spacing: true
+printWidth: 120

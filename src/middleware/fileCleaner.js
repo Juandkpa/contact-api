@@ -1,4 +1,4 @@
-import { unlink } from "fs";
+import { unlink } from 'fs';
 
 const fileCleaner = (err, { file }, res, next) => {
   if (!file) {
@@ -10,7 +10,7 @@ const fileCleaner = (err, { file }, res, next) => {
     if (err) {
       return console.log(err);
     }
-    console.log("file removed");
+    console.log('file removed');
   });
   next(err);
 };

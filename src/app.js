@@ -1,14 +1,11 @@
-import { json, urlencoded } from "body-parser";
-import cors from "cors";
-import express from "express";
+import { json, urlencoded } from 'body-parser';
+import cors from 'cors';
+import express from 'express';
 import contactRouter from './resources/contact';
-import connectDB from './db/mongoose';
 import { developmentErrors, productionErrors } from './middleware/error';
 import fileCleaner from './middleware/fileCleaner';
 
 const app = express();
-
-connectDB();
 
 app.use(
   cors({
@@ -25,13 +22,12 @@ app.use(express.static('public'));
 
 app.use(fileCleaner);
 
-if (app.get("env") === "development") {
+if (app.get('env') === 'development') {
   app.use(developmentErrors);
 }
 
-if (app.get("env") === "production") {
+if (app.get('env') === 'production') {
   app.use(productionErrors);
 }
-
 
 export { app as default };
