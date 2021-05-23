@@ -2,8 +2,8 @@ import { Router } from "express";
 import * as Controller from "./contact.controller";
 import multer from "multer";
 import path from "path";
-import { catchErrors } from "../../utils/errorHandler";
-import checkValidations from "./contact.validation";
+import { catchErrors, ValidationError } from "../../utils/errorHandler";
+import { createValidations, updateValidations } from "./contact.validation";
 
 const storage = multer.diskStorage({
   destination: "public/images/",
@@ -16,22 +16,34 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  fileFilter: (req, file, cb) => {
-    cb(null, file.mimetype.includes("image/"));
+  fileFilter: (req, { mimetype, fieldname }, cb) => {
+    const isValidImage = mimetype.includes("image/");
+    if (!isValidImage) {
+      return cb(
+        new ValidationError([
+          { field: fieldname, msg: "You must upload an image" },
+        ])
+      );
+    }
+    cb(null, isValidImage);
   },
 });
 
 const router = Router();
 
 router.get("/:id", Controller.get);
-
 router.post(
   "/",
   upload.single("profile_image"),
-  checkValidations,
+  createValidations,
   catchErrors(Controller.save)
 );
-router.put("/:id", Controller.update);
-router.delete("/", Controller.remove);
+router.put(
+  "/:id",
+  upload.single("profile_image"),
+  updateValidations,
+  catchErrors(Controller.update)
+);
+router.delete("/:id", Controller.remove);
 
 export { router as default };

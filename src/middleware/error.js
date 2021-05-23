@@ -1,3 +1,4 @@
+//TODO: check if mongo errors can be parsed
 const developmentErrors = (err, req, res, next) => {
   const errorDetails = {
     message: err.message,
