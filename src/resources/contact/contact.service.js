@@ -1,12 +1,12 @@
 import Contact from "./contact.model";
 import { BadRequestError, NotFoundError } from "../../utils/errorHandler";
-import { unlink } from 'fs';
+import { unlink } from "fs";
 
 const log = (action) => {
   console.log("performing ", action);
 };
 const get = async (id) => {
-    const contact = await Contact.findById(id);
+  const contact = await Contact.findById(id);
 
   if (!contact) {
     throw new NotFoundError(`Contact with id ${id} not found`);
@@ -27,44 +27,58 @@ const save = async (body, { filename }, url) => {
 };
 
 const update = async (id, body, file, url) => {
-    const contact = await get(id);
-  
-  
+  const contact = await get(id);
+
   //TODO: file managemnet
   if (file) {
-      //update image in db
-      const imageUrl = `${url}/images/${file.filename}`;
-      body.profile_image = imageUrl;
-      console.log('file path:::', file.path);
-      //delete previous image;
-      const prevImage = contact.profile_image.replace(url, '');      
-      unlink(`public/${prevImage}`, (err) => {
-          if (err) {
-              return console.log('something went wrong removing previous image');
-          }
-          console.log('previous image removed');
-      })
+    //update image in db
+    const imageUrl = `${url}/images/${file.filename}`;
+    body.profile_image = imageUrl;
+    console.log("file path:::", file.path);
+    //delete previous image;
+    const prevImage = contact.profile_image.replace(url, "");
+    unlink(`public/${prevImage}`, (err) => {
+      if (err) {
+        return console.log("something went wrong removing previous image");
+      }
+      console.log("previous image removed");
+    });
   }
-    
-    contact.set(body);
+
+  contact.set(body);
   return contact.save();
 };
 
 const remove = async (id, url) => {
-  const contact = await Contact.findOneAndDelete({_id: id})
+  const contact = await Contact.findOneAndDelete({ _id: id });
 
-  if(!contact) {
-      throw new NotFoundError(`Contact with id ${id} not found`);
+  if (!contact) {
+    throw new NotFoundError(`Contact with id ${id} not found`);
   }
 
-  const prevImage = contact.profile_image.replace(url, '');      
-    unlink(`public/${prevImage}`, (err) => {
-        if (err) {
-            return console.log('something went wrong removing previous image');
-        }
-        console.log('previous image removed');
-    });
-    return contact;
+  const prevImage = contact.profile_image.replace(url, "");
+  unlink(`public/${prevImage}`, (err) => {
+    if (err) {
+      return console.log("something went wrong removing previous image");
+    }
+    console.log("previous image removed");
+  });
+  return contact;
 };
 
-export { get, save, update, remove };
+const search = async (q) => {
+  const findRegex = { $regex: q, $options: "i" };
+  return Contact.find({
+    $or: [
+      { email: findRegex },
+      { personal_phone_number: findRegex },
+      { work_phone_number: findRegex },
+    ],
+  });
+};
+
+const getByLocation = async(location) => {
+    return Contact.find({address: {$regex: location, $options: "i"}});
+}
+
+export { get, save, update, remove, search, getByLocation };

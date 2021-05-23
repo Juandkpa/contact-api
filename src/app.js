@@ -19,7 +19,7 @@ app.use(
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
-app.use('/api/contact', contactRouter);
+app.use('/api/contacts', contactRouter);
 
 app.use(express.static('public'));
 

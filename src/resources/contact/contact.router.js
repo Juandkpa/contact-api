@@ -45,5 +45,6 @@ router.put(
   catchErrors(Controller.update)
 );
 router.delete("/:id", catchErrors(Controller.remove));
+router.get("/", catchErrors(Controller.getByQuery));
 
 export { router as default };
