@@ -31,7 +31,7 @@ const upload = multer({
 
 const router = Router();
 
-router.get("/:id", Controller.get);
+router.get("/:id", catchErrors(Controller.get));
 router.post(
   "/",
   upload.single("profile_image"),
@@ -44,6 +44,6 @@ router.put(
   updateValidations,
   catchErrors(Controller.update)
 );
-router.delete("/:id", Controller.remove);
+router.delete("/:id", catchErrors(Controller.remove));
 
 export { router as default };

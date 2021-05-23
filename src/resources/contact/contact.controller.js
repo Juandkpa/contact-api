@@ -6,7 +6,7 @@ const get = async (req, res) => {
   const { id } = req.params;
   const contact = await Service.get(id);
 
-  res.send(contact);
+  res.status(200).send(contact);
 };
 
 const save = async (req, res) => {  
@@ -43,7 +43,8 @@ const update = async (req, res) => {
 
 const remove = async (req, res) => {
   const { id } = req.params;
-  await Service.remove(id);
+  const url = req.protocol + "://" + req.get("host");
+  await Service.remove(id, url);
   res.status(200).send();
 };
 
