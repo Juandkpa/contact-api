@@ -1,4 +1,6 @@
 import * as Service from "./contact.service";
+import { validationResult } from 'express-validator';
+import { ValidationError } from '../../utils/errorHandler';
 
 const get = async (req, res) => {
   const { id } = req.params;
@@ -7,12 +9,19 @@ const get = async (req, res) => {
   res.send(contact);
 };
 
-const save = async (req, res) => {
-  const { body } = req;
+const save = async (req, res) => {  
+  const errors = validationResult(req);
+  
+  if (!errors.isEmpty()) {
+    throw new ValidationError(errors.array());
+    
+  }
 
-  //thrown exception inside service
-  await Service.save(body);
-  res.status(200).send();
+  const { body, file } = req;  
+  const url = req.protocol + "://" + req.get("host");
+  const contact = await Service.save(body, file, url);  
+
+  res.status(200).send(contact);
 };
 
 const update = async (req, res) => {
@@ -24,9 +33,9 @@ const update = async (req, res) => {
 };
 
 const remove = async (req, res) => {
-    const { id } = req.params;
-    await Service.remove(id);
-    res.status(200).send();
-}
+  const { id } = req.params;
+  await Service.remove(id);
+  res.status(200).send();
+};
 
 export { get, save, update, remove };
