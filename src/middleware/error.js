@@ -1,22 +1,21 @@
-//TODO: check if mongo errors can be parsed
 const developmentErrors = (err, req, res, next) => {
   const errorDetails = {
     message: err.message,
     statusCode: err.statusCode,
-    stack: err.stack || "",    
+    stack: err.stack || '',
   };
   if (err.validationErrors) {
     errorDetails.validationErrors = err.validationErrors;
   }
 
   res.status(err.statusCode || 500);
-  res.send({ error: errorDetails });
+  res.json({ error: errorDetails });
 };
 
 const productionErrors = (err, req, res, next) => {
   const errorDetails = {
     message: err.message,
-    statusCode: err.statusCode,    
+    statusCode: err.statusCode,
   };
 
   if (err.validationErrors) {

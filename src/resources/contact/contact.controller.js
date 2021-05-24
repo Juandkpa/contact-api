@@ -6,7 +6,7 @@ const get = async (req, res) => {
   const { id } = req.params;
   const contact = await Service.get(id);
 
-  res.status(200).send(contact);
+  res.json(contact);
 };
 
 const save = async (req, res) => {
@@ -38,18 +38,21 @@ const update = async (req, res) => {
   const { id } = req.params;
   const url = req.protocol + '://' + req.get('host');
   const contact = await Service.update(id, body, file, url);
+
   res.json(contact);
 };
 
 const remove = async (req, res) => {
   const { id } = req.params;
   const url = req.protocol + '://' + req.get('host');
+
   await Service.remove(id, url);
+  
   res.status(200).send();
 };
 
 const getByQuery = async (req, res) => {
-  let contacts = [];
+  let contacts;
 
   if (req.query.q) {
     contacts = await Service.search(req.query.q);

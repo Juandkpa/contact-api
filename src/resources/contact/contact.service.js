@@ -23,23 +23,24 @@ const save = async (body, { filename }, url) => {
   return Contact.create({ ...body, profile_image: imageUrl });
 };
 
+const removeImage = (img) => {
+  unlink(`public/${img}`, (err) => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log('image removed');
+  });
+};
+
 const update = async (id, body, file, url) => {
   const contact = await get(id);
 
-  //TODO: file managemnet
   if (file) {
-    //update image in db
     const imageUrl = `${url}/images/${file.filename}`;
-    body.profile_image = imageUrl;
-    console.log('file path:::', file.path);
-    //delete previous image;
     const prevImage = contact.profile_image.replace(url, '');
-    unlink(`public/${prevImage}`, (err) => {
-      if (err) {
-        return console.log('something went wrong removing previous image');
-      }
-      console.log('previous image removed');
-    });
+
+    body.profile_image = imageUrl;
+    removeImage(prevImage);
   }
 
   contact.set(body);
@@ -53,13 +54,9 @@ const remove = async (id, url) => {
     throw new NotFoundError(`Contact with id ${id} not found`);
   }
 
-  const prevImage = contact.profile_image.replace(url, '');
-  unlink(`public/${prevImage}`, (err) => {
-    if (err) {
-      return console.log('something went wrong removing previous image');
-    }
-    console.log('previous image removed');
-  });
+  const contactImage = contact.profile_image.replace(url, '');
+  removeImage(contactImage);
+
   return contact;
 };
 

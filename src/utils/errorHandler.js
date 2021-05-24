@@ -31,9 +31,4 @@ const catchErrors = (fn) => {
   };
 };
 
-const notFound = (req, res, next) => {
-  const err = new NotFoundError();
-  next(err);
-};
-
-export { catchErrors, notFound, NotFoundError, BadRequestError, ValidationError };
+export { catchErrors, NotFoundError, BadRequestError, ValidationError };
