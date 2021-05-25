@@ -1,0 +1,91 @@
+openapi: 3.0.1
+info:
+  title: Contact Api
+  description: 'This is a backend api to manage contacts'  
+  contact:
+    email: juandkpa@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT    
+  version: 1.0.0
+servers:
+- url: http://localhost:3000/api
+  description: Local server
+tags:
+- name: contacts
+  description: All related endpoints for contacts
+paths:
+  /contacts:
+    post:
+      tags:
+      - contacts
+      summary: Create a contact
+      operationId: createContact
+      requestBody:
+        description: Contact to be added to the DB
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Contact'          
+        required: true
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Pet not found
+          content: {}
+        405:
+          description: Validation exception
+          content: {}
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+      x-codegen-request-body-name: body
+    put:
+      tags:
+      - contacts
+components:
+    schemas:
+        Contact:
+            required:
+            - name
+            - company
+            - profile_image
+            - email
+            - birth_date
+            - personal_phone_number
+            - address
+            type: object
+            properties:
+                name:
+                    type: string
+                company:
+                    type: string
+                profile_image:
+                    type: string
+                    format: binary
+                email:
+                    type: string
+                birth_date:
+                    type: string
+                personal_phone_number:
+                    type: string
+                work_phone_number:
+                    type: string
+                address:
+                    type: string
+            encoding:
+                profile_image:
+                  contentType: image/* 
+            example:
+                name: pepe
+                company: kin
+                profile_image: im
+                email: pepe@kin.com
+                birth_date: '2000-05-01'
+                personal_phone_number: '3102012454'
+                address: 'calle fake 123'
+
+                
