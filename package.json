@@ -31,6 +31,7 @@
     "@types/express": "^4.17.11",
     "babel-core": "^6.26.3",
     "babel-eslint": "10.1.0",
+    "cuid": "^2.1.8",
     "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.1.0",
@@ -38,6 +39,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
+    "lodash": "^4.17.21",
     "node-mocks-http": "^1.10.1",
     "nodemon": "^2.0.7",
     "prettier": "^2.3.0",
@@ -46,6 +48,12 @@
   "jest": {
     "verbose": true,
     "testEnvironment": "node",
-    "restoreMocks": true
+    "restoreMocks": true,
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/testDBSetup.js"
+    ]
   }
 }

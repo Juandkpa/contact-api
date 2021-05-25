@@ -59,7 +59,7 @@ const getByQuery = async (req, res) => {
   } else if (req.query.location) {
     contacts = await Service.getByLocation(req.query.location);
   } else {
-    throw new BadRequestError('Please provide a q or place parameter');
+    throw new BadRequestError('Please provide a q or location parameter');
   }
 
   res.json(contacts);

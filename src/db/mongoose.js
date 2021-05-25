@@ -7,7 +7,7 @@ const options = {
   useFindAndModify: false,
 };
 
-const connectDB = async () => {
+const connectDB = async (dbUrl) => {
   connection.on('connected', () => {
     console.log('mongo connected successfully');
   });
@@ -16,7 +16,7 @@ const connectDB = async () => {
   });
 
   try {
-    await connect(process.env.MONGO_DB, options);    
+    await connect(dbUrl, options);    
   } catch (err) {
     console.log(err.message);    
   }

@@ -5,6 +5,7 @@ import app from '../app';
 import connectDB from '../db/mongoose';
 
 const PORT = process.env.PORT || 3000;
+const MONGO_URL = process.env.MONGO_URL;
 
 app.set('port', PORT);
 const server = http.createServer(app);
@@ -30,7 +31,7 @@ const onError = (error) => {
 };
 
 const run = async () => {
-  await connectDB();
+  await connectDB(MONGO_URL);
   server.listen(PORT);
   server.on('error', onError);
   server.on('listening', onListening);
