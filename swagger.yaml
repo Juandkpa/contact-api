@@ -35,19 +35,44 @@ paths:
           $ref: '#components/responses/BadRequestOneOf'
         415:
           $ref: '#components/responses/UnsupportedMediaType'
+    get:
+      tags:
+        - contacts
+      summary: Search by email or phone number / Get all by state or city
+      description: According to the provided parameter, contacts can be searched or retrived for state or city.
+      operationId: getQueryBy
+      parameters:
+      - name: q
+        in: query
+        description: > 
+          Portion of email or phone number (work/personal) to be consider for search.
+          This parameter is incompatible with `location`. If both are provided, only 
+          this parameter will be taken into account.
+        required: false
+      - name: location
+        in: query
+        description: >
+          City or State to be consider for the filter.
+          This parameter is incompatible with `q`. If both are provided, this parameter
+          will be ignored and `q` will be taken into account.
+      responses:
+        200:
+          $ref: '#components/responses/SuccessfullSeveralContact'
+        400:
+          $ref: '#components/responses/BadRequest'
   /contacts/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: The Contact Id
+        required: true
+        schema:
+          type: string
     put:
       tags:
         - contacts
-      summary: Update a contact
-      operationId: updateContact
-      parameters:
-      - name: id
-        in: path
-        description: Id of the Contact to be updated
-        required: true
-        schema:
-          type: string          
+      summary: Update a contact with the specified Id
+      operationId: updateContact          
       requestBody:
         description: Information to update an existing contact
         content:
@@ -69,15 +94,8 @@ paths:
     get:
       tags:
         - contacts
-      summary: Get a contact by its id
+      summary: Get a contact with the specified Id
       operationId: getContact
-      parameters:
-      - name: id
-        in: path
-        description: Id of the Contact to be retrieved
-        required: true
-        schema:
-          type: string 
       responses:
         200:
           $ref: '#components/responses/SuccessfullOneContact'
@@ -88,15 +106,8 @@ paths:
     delete:
       tags:
         - contacts
-      summary: Delete a contact by its id
-      operationId: deleteContact
-      parameters:
-      - name: id
-        in: path
-        description: Id of the Contact to be deleted
-        rquired: true
-        schema:
-          type: string
+      summary: Delete a contact with the specified Id
+      operationId: deleteContact      
       responses:
         200:
           description: Successfull operation
@@ -261,12 +272,24 @@ components:
         application/json:
           schema:
             $ref: '#components/schemas/ContactWithId'
-    BadRequest:      
-      description: Bad request
+    SuccessfullSeveralContact:
+      description: Successfull operation
       content:
         application/json:
           schema:
-            $ref: '#components/errors/requiredField'
+            type: array
+            items:
+              $ref: '#/components/schemas/ContactWithId'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schemas:
+            $ref: '#components/errors/baseError'
+          example:
+            error:
+              message: Please provide a q or location parameter
+              statusCode: 400
     BadRequestOneOf:
       description: Bad request
       content:
@@ -275,6 +298,7 @@ components:
             oneOf:
               - $ref: '#components/errors/requiredField'
               - $ref: '#components/errors/alreadyExists'
+    
     NotFound:
       description: Not found
       content:
