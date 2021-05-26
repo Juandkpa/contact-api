@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import {  ValidationError } from './errorHandler';
+import {  MediaTypeError } from './errorHandler';
 
 
 const storage = multer.diskStorage({
@@ -18,7 +18,7 @@ const upload = multer({
   fileFilter: (req, { mimetype, fieldname }, cb) => {
     const isValidImage = mimetype.includes('image/');
     if (!isValidImage) {
-      return cb(new ValidationError([{ field: fieldname, msg: 'You must upload an image' }]));
+      return cb(new MediaTypeError([{ field: fieldname, msg: 'You must upload an image' }]));
     }
     cb(null, isValidImage);
   },

@@ -70,7 +70,7 @@ describe('contact.router', () => {
         .field('address', 'Carrera 50 # 10 - 12, Bogota')
         .attach('profile_image', path.resolve(__dirname, '../../fixtures/bad.txt'));
 
-      expect(res.statusCode).toBe(400);
+      expect(res.statusCode).toBe(415);
     });
   });
 });

@@ -1,91 +1,217 @@
 openapi: 3.0.1
 info:
   title: Contact Api
-  description: 'This is a backend api to manage contacts'  
+  description: 'This is a backend api to manage contacts'
   contact:
     email: juandkpa@gmail.com
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT    
+    url: https://opensource.org/licenses/MIT
   version: 1.0.0
 servers:
-- url: http://localhost:3000/api
-  description: Local server
+  - url: http://localhost:3000/api
+    description: Local server
 tags:
-- name: contacts
-  description: All related endpoints for contacts
+  - name: contacts
+    description: All related endpoints for contacts
 paths:
   /contacts:
     post:
       tags:
-      - contacts
+        - contacts
       summary: Create a contact
       operationId: createContact
       requestBody:
-        description: Contact to be added to the DB
+        description: New contact to be saved
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Contact'          
+              $ref: '#/components/schemas/ContactForm'
         required: true
       responses:
+        200:
+          description: Successfull operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#components/schemas/Contact'
         400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-      x-codegen-request-body-name: body
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#components/responses/requiredField'
+        415:
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                $ref: '#components/responses/mediaType'
+  /contacts/{id}:
     put:
       tags:
-      - contacts
+        - contacts
+      summary: Update a contact
+      operationId: updateContact
+      parameters:
+      - name: id
+        in: path
+        description: ID of the Contact to be updated
+        required: true
+        schema:
+          type: string          
+      requestBody:
+        description: Information to update an existing contact
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BaseContact'
+        required: true
+      responses:
+        200:
+          description: Successfull operation
+          content: 
+            application/json:
+              schema:
+                $ref: '#components/schemas/Contact'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#components/responses/requiredField'
+        415:
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                $ref: '#components/responses/mediaType'      
 components:
-    schemas:
-        Contact:
-            required:
-            - name
-            - company
-            - profile_image
-            - email
-            - birth_date
-            - personal_phone_number
-            - address
-            type: object
-            properties:
-                name:
+  schemas:
+    BaseContact:
+      type: object
+      properties:
+        name:
+          type: string
+        company:
+          type: string
+        profile_image:
+          type: string          
+        email:
+          type: string
+        birth_date:
+          type: string
+        personal_phone_number:
+          type: string
+        work_phone_number:
+          type: string
+        address:
+          type: string
+    Contact:      
+      allOf:
+        - $ref: '#/components/schemas/BaseContact'
+        - type: object
+          properties:
+            _id:
+              type: string        
+      example:
+        _id: 60ad9ae8ad0fd3268f3600ec
+        name: juan
+        company: kin
+        profile_image: http://localhost:3000/images/avatar.png
+        email: juan@kin.com
+        brith_date: '2019-01-20'
+        personal_phone_number: '3102056011'
+        work_phone_number: '3005559607'
+        address: 'Cr 20 # 12 - 10'
+    ContactForm:
+      type: object
+      required:
+        - name
+        - company
+        - profile_image
+        - email
+        - birth_date
+        - personal_phone_number
+        - address
+      properties:
+        name:
+          type: string
+        company:
+          type: string
+        profile_image:
+          type: string
+          format: binary
+        email:
+          type: string
+        birth_date:
+          type: string
+        personal_phone_number:
+          type: string
+        work_phone_number:
+          type: string
+        address:
+          type: string
+          example: gato
+      encoding:
+        profile_image:
+          contentType: image/*
+  responses:
+    requiredField:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            statusCode:
+              type: string
+            validationErrors:
+              type: array
+              items:
+                type: object
+                properties:
+                  value:
                     type: string
-                company:
+                  msg:
                     type: string
-                profile_image:
+                  param:
                     type: string
-                    format: binary
-                email:
+                  location: 
                     type: string
-                birth_date:
+      example:
+        error:
+          message: Bad Request
+          statusCode: 400
+          validateErrors:
+            - value: ""
+              msg: 'field is required'
+              name: name
+              location: body
+    mediaType:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            statusCode:
+              type: string
+            validationErrors:
+              type: array
+              items:
+                type: object
+                properties:                  
+                  field:
                     type: string
-                personal_phone_number:
+                  msg:
                     type: string
-                work_phone_number:
-                    type: string
-                address:
-                    type: string
-            encoding:
-                profile_image:
-                  contentType: image/* 
-            example:
-                name: pepe
-                company: kin
-                profile_image: im
-                email: pepe@kin.com
-                birth_date: '2000-05-01'
-                personal_phone_number: '3102012454'
-                address: 'calle fake 123'
-
-                
+      example:
+        error:
+          message: Unsupported Media Type
+          statusCode: 415
+          validateErrors:
+            - field: profile_image
+              msg: You must upload an image              

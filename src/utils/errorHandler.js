@@ -19,8 +19,15 @@ class BadRequestError extends CustomError {
 }
 
 class ValidationError extends BadRequestError {
-  constructor(validationErrors) {
-    super();
+  constructor(validationErrors, message) {
+    super(message);
+    this.validationErrors = validationErrors;
+  }
+}
+
+class MediaTypeError extends CustomError {
+  constructor(validationErrors, message = 'Unsupported Media Type') {
+    super(415, message);
     this.validationErrors = validationErrors;
   }
 }
@@ -31,4 +38,4 @@ const catchErrors = (fn) => {
   };
 };
 
-export { catchErrors, NotFoundError, BadRequestError, ValidationError };
+export { catchErrors, NotFoundError, BadRequestError, ValidationError, MediaTypeError };

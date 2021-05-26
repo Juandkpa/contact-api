@@ -4,7 +4,7 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import contactRouter from './resources/contact';
-import { developmentErrors, productionErrors } from './middleware/error';
+import errorMiddleware from './middleware/error';
 import fileCleaner from './middleware/fileCleaner';
 
 const app = express();
@@ -25,13 +25,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.static('public'));
 
 app.use(fileCleaner);
-
-if (app.get('env') === 'development') {
-  app.use(developmentErrors);
-}
-
-if (app.get('env') === 'production') {
-  app.use(productionErrors);
-}
+app.use(errorMiddleware);
 
 export { app as default };
