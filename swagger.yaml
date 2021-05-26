@@ -30,23 +30,11 @@ paths:
         required: true
       responses:
         200:
-          description: Successfull operation
-          content: 
-            application/json:
-              schema:
-                $ref: '#components/schemas/Contact'
+          $ref: '#components/responses/SuccessfullOneContact'
         400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#components/responses/requiredField'
+          $ref: '#components/responses/BadRequestOneOf'
         415:
-          description: Unsupported Media Type
-          content:
-            application/json:
-              schema:
-                $ref: '#components/responses/mediaType'
+          $ref: '#components/responses/UnsupportedMediaType'
   /contacts/{id}:
     put:
       tags:
@@ -56,7 +44,7 @@ paths:
       parameters:
       - name: id
         in: path
-        description: ID of the Contact to be updated
+        description: Id of the Contact to be updated
         required: true
         schema:
           type: string          
@@ -65,27 +53,57 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/BaseContact'
+              $ref: '#/components/schemas/ContactWithBinaryFile'
         required: true
+      responses:
+        200:          
+          $ref: '#components/responses/SuccessfullOneContact'
+        400:
+          $ref: '#components/responses/BadRequestOneOf'
+        404:
+          $ref: '#components/responses/NotFound'
+        415:
+          $ref: '#components/responses/UnsupportedMediaType'
+        500:
+          $ref: '#components/responses/InternalServerError'          
+    get:
+      tags:
+        - contacts
+      summary: Get a contact by its id
+      operationId: getContact
+      parameters:
+      - name: id
+        in: path
+        description: Id of the Contact to be retrieved
+        required: true
+        schema:
+          type: string 
+      responses:
+        200:
+          $ref: '#components/responses/SuccessfullOneContact'
+        404:
+          $ref: '#components/responses/NotFound'
+        500:
+          $ref: '#components/responses/InternalServerError'
+    delete:
+      tags:
+        - contacts
+      summary: Delete a contact by its id
+      operationId: deleteContact
+      parameters:
+      - name: id
+        in: path
+        description: Id of the Contact to be deleted
+        rquired: true
+        schema:
+          type: string
       responses:
         200:
           description: Successfull operation
-          content: 
-            application/json:
-              schema:
-                $ref: '#components/schemas/Contact'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#components/responses/requiredField'
-        415:
-          description: Unsupported Media Type
-          content:
-            application/json:
-              schema:
-                $ref: '#components/responses/mediaType'      
+        404:
+          $ref: '#components/responses/NotFound'
+        500:
+          $ref: '#components/responses/InternalServerError'
 components:
   schemas:
     BaseContact:
@@ -107,13 +125,15 @@ components:
           type: string
         address:
           type: string
-    Contact:      
+    ContactWithId:      
       allOf:
         - $ref: '#/components/schemas/BaseContact'
         - type: object
           properties:
             _id:
-              type: string        
+              type: string
+            _v:
+              type: integer
       example:
         _id: 60ad9ae8ad0fd3268f3600ec
         name: juan
@@ -124,6 +144,15 @@ components:
         personal_phone_number: '3102056011'
         work_phone_number: '3005559607'
         address: 'Cr 20 # 12 - 10'
+        _v: 0
+    ContactWithBinaryFile:
+      allOf:
+        - $ref: '#/components/schemas/BaseContact'
+        - type: object
+          properties:
+            profile_image:
+              type: string
+              format: binary
     ContactForm:
       type: object
       required:
@@ -134,30 +163,13 @@ components:
         - birth_date
         - personal_phone_number
         - address
-      properties:
-        name:
-          type: string
-        company:
-          type: string
-        profile_image:
-          type: string
-          format: binary
-        email:
-          type: string
-        birth_date:
-          type: string
-        personal_phone_number:
-          type: string
-        work_phone_number:
-          type: string
-        address:
-          type: string
-          example: gato
+      allOf:
+        - $ref: '#/components/schemas/ContactWithBinaryFile'
       encoding:
         profile_image:
-          contentType: image/*
-  responses:
-    requiredField:
+          contentType: image/*    
+  errors:
+    baseError:
       type: object
       properties:
         error:
@@ -166,7 +178,12 @@ components:
             message:
               type: string
             statusCode:
-              type: string
+              type: string   
+    requiredField:
+      allOf:
+        - $ref: '#/components/errors/baseError'
+        - type: object
+          properties:
             validationErrors:
               type: array
               items:
@@ -190,15 +207,10 @@ components:
               name: name
               location: body
     mediaType:
-      type: object
-      properties:
-        error:
-          type: object
+      allOf:
+        - $ref: '#/components/errors/baseError'
+        - type: object
           properties:
-            message:
-              type: string
-            statusCode:
-              type: string
             validationErrors:
               type: array
               items:
@@ -215,3 +227,69 @@ components:
           validateErrors:
             - field: profile_image
               msg: You must upload an image              
+    notFound:
+      allOf:
+        - $ref: '#/components/errors/baseError'
+        - type: object
+      example:
+        error:
+          message: Contact with id 60ac58fc2e480557ff4a9bd3 not found
+          statusCode: 404
+    alreadyExists:
+      allOf:
+        - $ref: '#/components/errors/baseError'
+        - type: object
+      example:
+        errors:
+          message: Contact already exists
+          statusCode: 400
+    serverError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+      example:
+        error:
+          message: 'Cast to ObjectId failed for value \"6445456\" (type string) at path \"_id\" for model \"Contact\"'
+  responses:
+    SuccessfullOneContact:
+      description: Successfull operation
+      content: 
+        application/json:
+          schema:
+            $ref: '#components/schemas/ContactWithId'
+    BadRequest:      
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#components/errors/requiredField'
+    BadRequestOneOf:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#components/errors/requiredField'
+              - $ref: '#components/errors/alreadyExists'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#components/errors/notFound'
+    UnsupportedMediaType:
+      description: Unsupported Media Type
+      content:
+        application/json:
+          schema:
+            $ref: '#components/errors/mediaType'
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#components/errors/serverError'
